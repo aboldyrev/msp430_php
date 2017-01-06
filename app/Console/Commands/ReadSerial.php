@@ -2,7 +2,9 @@
 
 namespace App\Console\Commands;
 
+use App\Models\Light;
 use Illuminate\Console\Command;
+use App\Models\Temperature;
 
 class ReadSerial extends Command
 {
@@ -60,7 +62,7 @@ class ReadSerial extends Command
 		$light = (float)trim(fgets($device));
 		fclose($device);
 
-		$this->line('Temperature: ' . $temperature);
-		$this->line('Light: ' . $light);
+		Temperature::create(['value' => $temperature]);
+		Light::create(['value'=>$light]);
 	}
 }
