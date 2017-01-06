@@ -35,8 +35,20 @@ class ReadSerial extends Command
 	 * @return mixed
 	 */
 	public function handle(){
+		$device_name = '';
+
 		// имя девайса
-		$device_name = "/dev/ttyACM1";
+		$devices = glob('/dev/ttyACM*');
+
+		if (count($devices) == 0){
+			$this->error('Device not found');
+			exit;
+		} elseif (count($devices) == 1) {
+			$device_name = array_first($devices);
+		} elseif (count($devices) > 1) {
+			$this->warn('Found more than one device');
+			$device_name = $this->choice('Select your device', $devices);
+		}
 
 		// настройка
 		exec('stty -F ' . $device_name . ' 9600 raw');
