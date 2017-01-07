@@ -1,7 +1,16 @@
 google.charts.load('current', {'packages': ['line', 'corechart']});
 google.charts.setOnLoadCallback(drawChart);
 
-function drawChart() {
+function drawChart()
+{
+	var settings = {
+		title: 'Температура и освещение за последние сутки',
+		colors: ['#4CAF50', '#F44336'],
+		labels: {
+			temp: 'Тепрература (°C)',
+			light: 'Освещённость'
+		}
+	};
 
 	var chartDiv = document.getElementById('chart_div');
 
@@ -10,21 +19,24 @@ function drawChart() {
 	data.addColumn('number', "Температура");
 	data.addColumn('number', "Освещённость");
 
-	var dataRows = [];
-	timestamps.forEach(function (value, index) {
-		dataRows[index] = [value, Number(temperatures[index]), Number(lights[index])];
+	timestamps.forEach(function (value, index)
+	{
+		data.addRow([
+			value,
+			Number(temperatures[index]),
+			Number(lights[index])]
+		);
 	});
-	data.addRows(dataRows);
 
 
-
+	// Настройки для отрисовки графика в material design стиле
 	var materialOptions = {
 		chart: {
-			title: 'Температура и освещение за последние сутки'
+			title: settings.title
 		},
-		colors: ['#4CAF50', '#F44336'],
-		width: 1800,
-		height: 800,
+		colors: settings.colors,
+		width: settings.width,
+		height: settings.height,
 		series: {
 			// Gives each series an axis name that matches the Y-axis below.
 			0: {axis: 'Temps'},
@@ -33,18 +45,19 @@ function drawChart() {
 		axes: {
 			// Adds labels to each axis; they don't have to match the axis names.
 			y: {
-				Temps: {label: 'Тепрература (°C)'},
-				Daylight: {label: 'Освещённость'}
+				Temps: {label: settings.labels.temp},
+				Daylight: {label: settings.labels.light}
 			}
 		}
 	};
 
-
+	// Настройки для отрисовки графика в класическо стиле
 	var classicOptions = {
-		title: 'Температура и освещение за последние сутки',
-		colors: ['#4CAF50', '#F44336'],
-		width: 1900,
-		height: 900,
+		title: settings.title,
+		colors: settings.colors,
+		width: settings.width,
+		height: settings.height,
+		curveType: 'function',
 		// Gives each series an axis that matches the vAxes number below.
 		series: {
 			0: {targetAxisIndex: 0},
@@ -52,23 +65,23 @@ function drawChart() {
 		},
 		vAxes: {
 			// Adds titles to each axis.
-			0: {title: 'Тепрература (°C)'},
-			1: {title: 'Освещённость'}
+			0: {title: settings.labels.temp},
+			1: {title: settings.labels.light}
 		}
 	};
 
 
-	function drawMaterialChart() {
-		var materialChart = new google.charts.Line(chartDiv);
-		materialChart.draw(data, materialOptions);
+	function drawChart(material)
+	{
+		if (material == true) {
+			var materialChart = new google.charts.Line(chartDiv);
+			materialChart.draw(data, materialOptions);
+		} else {
+			var classicChart = new google.visualization.LineChart(chartDiv);
+			classicChart.draw(data, classicOptions);
+		}
+
 	}
 
-
-	function drawClassicChart() {
-		var classicChart = new google.visualization.LineChart(chartDiv);
-		classicChart.draw(data, classicOptions);
-	}
-
-	// drawMaterialChart();
-	drawClassicChart();
+	drawChart();
 }
