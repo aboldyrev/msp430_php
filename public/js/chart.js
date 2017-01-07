@@ -57,7 +57,6 @@ function drawChart()
 		colors: settings.colors,
 		width: settings.width,
 		height: settings.height,
-		curveType: 'function',
 		// Gives each series an axis that matches the vAxes number below.
 		series: {
 			0: {targetAxisIndex: 0},
