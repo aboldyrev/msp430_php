@@ -11,14 +11,12 @@ function drawChart() {
 	data.addColumn('number', "Освещённость");
 
 	var dataRows = [];
-
 	timestamps.forEach(function (value, index) {
 		dataRows[index] = [value, Number(temperatures[index]), Number(lights[index])];
 	});
-
-	console.log(dataRows);
-
 	data.addRows(dataRows);
+
+
 
 	var materialOptions = {
 		chart: {
@@ -41,11 +39,36 @@ function drawChart() {
 		}
 	};
 
+
+	var classicOptions = {
+		title: 'Температура и освещение за последние сутки',
+		colors: ['#4CAF50', '#F44336'],
+		width: 1900,
+		height: 900,
+		// Gives each series an axis that matches the vAxes number below.
+		series: {
+			0: {targetAxisIndex: 0},
+			1: {targetAxisIndex: 1}
+		},
+		vAxes: {
+			// Adds titles to each axis.
+			0: {title: 'Тепрература (°C)'},
+			1: {title: 'Освещённость'}
+		}
+	};
+
+
 	function drawMaterialChart() {
 		var materialChart = new google.charts.Line(chartDiv);
 		materialChart.draw(data, materialOptions);
 	}
 
-	drawMaterialChart();
 
+	function drawClassicChart() {
+		var classicChart = new google.visualization.LineChart(chartDiv);
+		classicChart.draw(data, classicOptions);
+	}
+
+	// drawMaterialChart();
+	drawClassicChart();
 }
