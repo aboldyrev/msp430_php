@@ -3,8 +3,14 @@ google.charts.setOnLoadCallback(drawChart);
 
 function drawChart()
 {
+	var period;
+	if (hours == 12){
+		period = ' 12 часов';
+	} else if (hours == 24) {
+		period = ' сутки';
+	}
 	var settings = {
-		title: 'Температура и освещение за последние сутки',
+		title: 'Температура и освещение за последние' + period,
 		colors: ['#4CAF50', '#F44336'],
 		labels: {
 			temp: 'Тепрература (°C)',
