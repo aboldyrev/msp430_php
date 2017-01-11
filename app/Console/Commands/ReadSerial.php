@@ -53,7 +53,7 @@ class ReadSerial extends Command
 		}
 
 		// настройка
-		exec('stty -F ' . $device_name . ' 9600 raw');
+		exec('stty -F ' . $device_name . ' 9600');
 
 		$device = fopen($device_name, "r+b");
 		fwrite($device, "t");
