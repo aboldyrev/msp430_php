@@ -3,8 +3,10 @@
 namespace App\Console\Commands;
 
 use App\Models\Light;
+use Carbon\Carbon;
 use Illuminate\Console\Command;
 use App\Models\Temperature;
+use Illuminate\Support\Facades\Mail;
 
 class ReadSerial extends Command
 {
@@ -22,12 +24,38 @@ class ReadSerial extends Command
 	 */
 	protected $description = 'Command description';
 
+
+	protected function logging($content, $value = NULL) {
+		if (is_array($value)) {
+			$context = 'light: ' . $value[ 'light' ] . '; temperature: ' . $value[ 'temp' ];
+		} elseif (is_string($value)) {
+			$context = $value;
+		} else {
+			$context = false;
+		}
+
+		if ($context) {
+			\Log::info($content, [ 'data' => $context ]);
+		} else {
+			\Log::info($content);
+		}
+
+		Mail::send(
+			'emails.simple',
+			[ 'content' => $content, 'context' => $context ],
+			function($message) use ($content) {
+				$subject = $content . ' - ' . Carbon::now()->format('H:i');
+				$message->to('angelcorpc@yandex.ru', 'Андрей')->subject($subject);
+			}
+		);
+	}
+
 	/**
 	 * Create a new command instance.
 	 *
 	 * @return void
 	 */
-	public function __construct(){
+	public function __construct() {
 		parent::__construct();
 	}
 
@@ -36,13 +64,13 @@ class ReadSerial extends Command
 	 *
 	 * @return mixed
 	 */
-	public function handle(){
+	public function handle() {
 		$device_name = '';
 
 		// имя девайса
 		$devices = glob('/dev/ttyACM*');
 
-		if (count($devices) == 0){
+		if (count($devices) == 0) {
 			$this->error('Device not found');
 			exit;
 		} elseif (count($devices) == 1) {
@@ -62,7 +90,32 @@ class ReadSerial extends Command
 		$light = (float)trim(fgets($device));
 		fclose($device);
 
-		Temperature::create(['value' => $temperature]);
-		Light::create(['value'=>$light]);
+		$last_value_light = Light::orderBy('created_at', 'desc')->first()->value;
+
+		$diff_light = $light - $last_value_light;
+
+		$values = [
+			'light' => $light,
+			'temp'  => $temperature
+		];
+
+		if (abs($diff_light) >= 300) {
+			// Общий свет
+			if ($diff_light > 0) {
+				$this->logging('ambient light on', $values);
+			} else {
+				$this->logging('ambient light off', $values);
+			}
+//		} elseif (true) {
+//			// Тест
+//			if ($diff_light > 0) {
+//				$this->logging('test on', $values);
+//			} else {
+//				$this->logging('test off', $values);
+//			}
+		}
+
+		Temperature::create([ 'value' => $temperature ]);
+		Light::create([ 'value' => $light ]);
 	}
 }
