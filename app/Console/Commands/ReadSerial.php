@@ -40,14 +40,23 @@ class ReadSerial extends Command
 			\Log::info($content);
 		}
 
-		Mail::send(
-			'emails.simple',
-			[ 'content' => $content, 'context' => $context ],
-			function($message) use ($content) {
-				$subject = $content . ' - ' . Carbon::now()->format('H:i');
-				$message->to('angelcorpc@yandex.ru', 'Андрей')->subject($subject);
-			}
-		);
+
+		foreach (config('contacts.mails') as $mail) {
+			Mail::send(
+				'emails.simple',
+				[ 'content' => $content, 'context' => $context ],
+				function($message) use ($content, $mail) {
+					$subject = $content . ' - ' . Carbon::now()->format('H:i');
+					$message
+						->from(
+							config('mail.from')['address'],
+							isset($mail['from']) ? $mail['from'] : config('mail.from')['name']
+						)
+						->to($mail['address'], $mail['name'])
+						->subject($subject);
+				}
+			);
+		}
 	}
 
 	/**
