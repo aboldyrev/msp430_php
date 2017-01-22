@@ -27,7 +27,7 @@ class ReadSerial extends Command
 
 	protected function logging($content, $value = NULL) {
 		if (is_array($value)) {
-			$context = 'light: ' . $value[ 'light' ] . '; temperature: ' . $value[ 'temp' ];
+			$context = 'Уровень света: ' . $value[ 'light' ] . '; Температура: ' . $value[ 'temp' ] . '°C';
 		} elseif (is_string($value)) {
 			$context = $value;
 		} else {
@@ -89,8 +89,18 @@ class ReadSerial extends Command
 			$device_name = $this->choice('Select your device', $devices);
 		}
 
+		$params = [
+			'', 'cs8', '115200',
+			'ignbrk', '-brkint', '-icrnl',
+			'-imaxbel', '-opost', '-onlcr',
+			'-isig', '-icanon', '-iexten',
+			'-echo', '-echoe', '-echok',
+			'-echoctl', '-echoke', 'noflsh',
+			'-ixon', '-crtscts'
+		];
+
 		// настройка
-		exec('stty -F ' . $device_name . ' 9600');
+		exec('stty -F ' . $device_name . implode(' ', $params));
 
 		$device = fopen($device_name, "r+b");
 		fwrite($device, "t");
@@ -108,23 +118,19 @@ class ReadSerial extends Command
 			'temp'  => $temperature
 		];
 
-		if (abs($diff_light) >= 300) {
-			// Общий свет
-			if ($diff_light > 0) {
-				$this->logging('ambient light on', $values);
-			} else {
-				$this->logging('ambient light off', $values);
+		if ($light > 0){
+			if (abs($diff_light) >= 300) {
+				// Общий свет
+				if ($diff_light > 0) {
+					$this->logging('Общий свет включен', $values);
+				} else {
+					$this->logging('Общий свет выключен', $values);
+				}
 			}
-//		} elseif (true) {
-//			// Тест
-//			if ($diff_light > 0) {
-//				$this->logging('test on', $values);
-//			} else {
-//				$this->logging('test off', $values);
-//			}
+
+			Temperature::create([ 'value' => $temperature ]);
+			Light::create([ 'value' => $light ]);
 		}
 
-		Temperature::create([ 'value' => $temperature ]);
-		Light::create([ 'value' => $light ]);
 	}
 }
