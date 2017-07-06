@@ -9,20 +9,28 @@ use Illuminate\Http\Request;
 
 class SiteController extends Controller
 {
-	public function graph(Request $request) {
-		$hours = $request->hours;
+	public function graph() {
+		return view('index');
+	}
 
-		if (isset($request->day)){
-			$day = $request->day;
-		} else {
-			$day = 0;
-		}
 
-		if (!isset($hours) || $hours == 12) {
-			$hours = 12;
-		} elseif (( $hours != 24 )) {
-			$hours = 24;
-		}
+ 	public function data(Request $request) {
+//		$hours = $request->hours;
+//
+//		if (isset($request->day)){
+//			$day = $request->day;
+//		} else {
+//			$day = 0;
+//		}
+//
+//		if (!isset($hours) || $hours == 12) {
+//			$hours = 12;
+//		} elseif (( $hours != 24 )) {
+//			$hours = 24;
+//		}
+
+	    $hours = 4;
+	    $day = 0;
 
 		$period = [
 			Carbon::now()->subDays($day)->subHours($hours),
@@ -38,19 +46,14 @@ class SiteController extends Controller
 
 		foreach ($temperature_models as $key => $temperature_model) {
 			// Сбор временных меток
-			$timestamp = \Carbon\Carbon::parse($temperature_model->created_at);
-			$timestamps[] = '"' .
-				( $timestamp->hour < 10 ? '0' . $timestamp->hour : $timestamp->hour ) .
-				':' .
-				( $timestamp->minute < 10 ? '0' . $timestamp->minute : $timestamp->minute ) . '"';
+			$timestamps[] = \Carbon\Carbon::parse($temperature_model->created_at)->toDateTimeString();
 
 			// Сбор температуры
-			$temperatures[] = '"' . $temperature_model->value . '"';
+			$temperatures[] = $temperature_model->value;
 
 			// Сбор освещённости
-			$lights[] = '"' . $light_models[ $key ]->value . '"';
+			$lights[] = $light_models[ $key ]->value;
 		}
-
-		return view('index', compact('temperatures', 'lights', 'timestamps', 'hours'));
+		return response()->json(compact('temperatures', 'lights', 'timestamps'));
 	}
 }
