@@ -10,12 +10,14 @@ $.getJSON('/get-data', function (data) {
 				data: data.temperatures,
 				backgroundColor: 'rgba(75, 192, 192, 0.2)',
 				borderColor: 'rgba(75, 192, 192, 1)',
+				pointBackgroundColor: 'rgba(75, 192, 192, 1)',
 				yAxisID: 'temp-y-axis'
 			}, {
 				label: 'Освещение',
 				data: data.lights,
 				backgroundColor: 'rgba(255, 99, 132, 0.2)',
 				borderColor: 'rgba(255,99,132,1)',
+				pointBackgroundColor: 'rgba(255,99,132,1)',
 				yAxisID: 'light-y-axis'
 			}]
 		},
@@ -40,7 +42,12 @@ $.getJSON('/get-data', function (data) {
 			},
 			tooltips: {
 				intersect: false,
-				mode: 'x'
+				mode: 'x',
+				callbacks: {
+					title: function(tooltipItem, chart) {
+						return 'Время: ' + moment(tooltipItem[0].xLabel, 'YYYY-MM-DD HH:mm:SS').format('HH:mm')
+					}
+				}
 			},
 			layout: {
 				padding: 20
@@ -51,6 +58,7 @@ $.getJSON('/get-data', function (data) {
 			},
 			elements: {
 				point: {
+					radius: 2,
 					hoverRadius: 5
 				},
 				line: {
