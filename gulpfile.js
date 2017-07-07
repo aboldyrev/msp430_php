@@ -15,9 +15,9 @@ elixir(function(mix) {
     mix.sass('app.scss');
 
 	mix.scripts([
-		"../../../bower_components/jquery/dist/jquery.min.js",
 	    "../../../bower_components/moment/min/moment.min.js",
 		"../../../bower_components/chart.js/dist/Chart.min.js",
+		"../../../bower_components/nanoajax/nanoajax.min.js",
         "chart.js"
 	], 'public/js/app.js');
 });
