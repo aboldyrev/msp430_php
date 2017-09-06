@@ -40,22 +40,26 @@ class ReadSerial extends Command
 			\Log::info($content);
 		}
 
-
-		foreach (config('contacts.mails') as $mail) {
-			Mail::send(
-				'emails.simple',
-				[ 'content' => $content, 'context' => $context ],
-				function($message) use ($content, $mail) {
-					$subject = $content . ' - ' . Carbon::now()->format('H:i');
-					$message
-						->from(
-							config('mail.from')['address'],
-							isset($mail['from']) ? $mail['from'] : config('mail.from')['name']
-						)
-						->to($mail['address'], $mail['name'])
-						->subject($subject);
-				}
-			);
+		if (file_exists(base_path('pc_boot.lock'))) {
+			\Log::info('Перезагрузка компьютера');
+			unlink (base_path('pc_boot.lock'));
+		} else {
+			foreach (config('contacts.mails') as $mail) {
+				Mail::send(
+					'emails.simple',
+					[ 'content' => $content, 'context' => $context ],
+					function($message) use ($content, $mail) {
+						$subject = $content . ' - ' . Carbon::now()->format('H:i');
+						$message
+							->from(
+								config('mail.from')['address'],
+								isset($mail['from']) ? $mail['from'] : config('mail.from')['name']
+							)
+							->to($mail['address'], $mail['name'])
+							->subject($subject);
+					}
+				);
+			}
 		}
 	}
 

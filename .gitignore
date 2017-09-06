@@ -5,3 +5,4 @@ Homestead.yaml
 Homestead.json
 .env
 /config/contacts.php
+pc_boot.lock
